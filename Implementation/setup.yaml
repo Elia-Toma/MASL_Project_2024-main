@@ -1,91 +1,92 @@
-# Gut system
-# Barrier variables
-barrier_impermeability : 50
-barrier_permeability_threshold : 25 
-barrier_permeability_threshold_stop : 20
-barrier_permeability_threshold_start : 30
-
-# Microbiota variables
-microbiota_good_bacteria_class : 30000
-microbiota_pathogenic_bacteria_class : 10000
-microbiota_diversity_threshold : 10000
-
-# To start the dysbyosis
-external_input.count : 10
-external_input : {
-    diet : "diet", 
-    antibiotics: "antibiotics",
-    stress: "stress" 
-}
-
-# The treatment to use
-treatment : True
-treatment_input.count : 10
-
-treatment_input : {
-    diet: "diet", 
-    probiotics: "probiotics" 
-}
-
-# The agents
-aep_enzyme.count : 50
-tau_proteins.count : 300
-alpha_syn_proteins.count : 300
-tau_oligomers_gut.count : 0
-alpha_syn_oligomers_gut.count : 0
-
-protein_name : {
-    tau: "tau",
-    alpha_syn: "alpha_syn"
-}
-
-aep_state : {
-    active: "active",
-    hyperactive: "hyperactive"
-}
-
-# Nervous system variables
+active_microglia:
+  count: 0
 active_microglia.count: 0
-resting_microglia.count: 50
-neuron_healthy.count: 300
+aep_enzyme:
+  count: 50
+aep_enzyme.count: 50
+aep_state:
+  active: active
+  hyperactive: hyperactive
+alpha_syn_cleaved_brain:
+  count: 0
+alpha_syn_cleaved_brain.count: 0
+alpha_syn_oligomer_brain:
+  count: 0
+alpha_syn_oligomer_brain.count: 0
+alpha_syn_oligomers_gut:
+  count: 0
+alpha_syn_oligomers_gut.count: 0
+alpha_syn_proteins:
+  count: 300
+alpha_syn_proteins.count: 300
+barrier_impermeability: 50
+barrier_permeability_threshold: 25
+barrier_permeability_threshold_start: 30
+barrier_permeability_threshold_stop: 20
+brain_log_file: output/brain_log.csv
+cyto_state:
+  non_inflammatory: non_inflammatory
+  pro_inflammatory: pro_inflammatory
+cytokine:
+  count: 0
+cytokine.count: 0
+external_input:
+  antibiotics: antibiotics
+  count: 10
+  diet: diet
+  stress: stress
+external_input.count: 10
+gut_log_file: output/gut_log.csv
+log_file: output/log_file.csv
+microbiota_diversity_threshold: 10000
+microbiota_good_bacteria_class: 30000
+microbiota_pathogenic_bacteria_class: 10000
+microglia_state:
+  active: active
+  resting: resting
+neuron_damaged:
+  count: 0
 neuron_damaged.count: 0
+neuron_dead:
+  count: 0
 neuron_dead.count: 0
-cytokine.count : 0
-#added
-#alpha_syn_cleaved.count : 800
-#alpha_syn_oligomer.count : 500
-#tau_cleaved.count : 1000
-#tau_oligomer.count : 1000
-alpha_syn_cleaved_brain.count : 0
-alpha_syn_oligomer_brain.count : 0
-tau_cleaved_brain.count : 0
-tau_oligomer_brain.count : 0
-
-
-microglia_state : {
-    active: "active",
-    resting: "resting"
-}
-
-neuron_state : {
-    "healthy": "healthy",
-    "damaged": "damaged",
-    "dead": "dead"
-}
-
-cyto_state : {
-    pro_inflammatory: "pro_inflammatory",
-    non_inflammatory: "non_inflammatory"
-}
-
-# Model variables
-world.width: 100
-world.height: 100
-
-# General variables
-stop.at : 500
-gut_log_file: 'output/gut_log.csv'
-brain_log_file: 'output/brain_log.csv'
-log_file: 'output/log_file.csv'
+neuron_healthy:
+  count: 300
+neuron_healthy.count: 300
+neuron_state:
+  damaged: damaged
+  dead: dead
+  healthy: healthy
+protein_name:
+  alpha_syn: alpha_syn
+  tau: tau
+resting_microglia:
+  count: 50
+resting_microglia.count: 50
 seed: 42
-
+stop:
+  at: 500
+stop.at: 500
+tau_cleaved_brain:
+  count: 0
+tau_cleaved_brain.count: 0
+tau_oligomer_brain:
+  count: 0
+tau_oligomer_brain.count: 0
+tau_oligomers_gut:
+  count: 0
+tau_oligomers_gut.count: 0
+tau_proteins:
+  count: 300
+tau_proteins.count: 300
+treatment: 1
+treatment_input:
+  count: 10
+  diet: diet
+  probiotics: probiotics
+treatment_input.count: 10
+world:
+  height: 100
+  width: 100
+world.height: 100
+world.width: 100

@@ -11,49 +11,126 @@ import numba
 from numba import int32, int64
 from numba.experimental import jitclass
 import pygame
-import ctypes
+import tkinter as tk 
+from tkinter import ttk
+
 import tkinter as tk
 from tkinter import ttk
+import yaml
+
+
+# Funzione per caricare i valori dal file YAML
+def load_yaml(filename):
+    with open(filename, 'r') as file:
+        return yaml.safe_load(file)
+
+# Funzione per salvare i valori nel file YAML
+def save_yaml(filename, data):
+    with open(filename, 'w') as file:
+        yaml.dump(data, file)
 
 class ParameterWindow:
     def __init__(self, root):
         self.root = root
         self.root.title("Enter Parameters")
 
-        # Define parameters with default values
-        self.params = {
-            'world.width': tk.IntVar(value=800),
-            'world.height': tk.IntVar(value=600),
-            'aep_enzyme': tk.IntVar(value=50),
-            'tau_proteins': tk.IntVar(value=100)
-            # Add other parameters here as needed
-        }
+        # Load existing parameters from setup.yaml
+        self.params = load_yaml('setup.yaml')
+
+        # Create a frame for the scrollbar
+        self.frame = ttk.Frame(root)
+        self.frame.grid(row=0, column=0, sticky='nsew')
+
+        # Create a canvas to hold the scrollbar
+        self.canvas = tk.Canvas(self.frame)
+        self.scrollbar = ttk.Scrollbar(self.frame, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas)
+
+        # Configure the canvas
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        # Set up the scrollbar
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        # Layout the canvas and scrollbar
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        self.scrollbar.grid(row=0, column=1, sticky="ns")
+
+        # Set the weight for grid resizing
+        self.frame.grid_rowconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(0, weight=1)
 
         # Create fields for each parameter
         row = 0
-        for param, var in self.params.items():
-            ttk.Label(root, text=param).grid(row=row, column=0, padx=10, pady=5, sticky="e")
-            ttk.Entry(root, textvariable=var).grid(row=row, column=1, padx=10, pady=5)
-            row += 1
+        self.var_entries = {}
+        for param, value in self.params.items():
+            if isinstance(value, dict):
+                for sub_param, sub_value in value.items():
+                    full_param = f"{param}.{sub_param}"
+                    var = tk.IntVar(value=sub_value) if isinstance(sub_value, int) else tk.StringVar(value=sub_value)
+                    self.var_entries[full_param] = var
+                    ttk.Label(self.scrollable_frame, text=full_param).grid(row=row, column=0, padx=10, pady=5, sticky="e")
+                    ttk.Entry(self.scrollable_frame, textvariable=var).grid(row=row, column=1, padx=10, pady=5)
+                    row += 1
+            else:
+                var = tk.IntVar(value=value) if isinstance(value, int) else tk.StringVar(value=value)
+                self.var_entries[param] = var
+                ttk.Label(self.scrollable_frame, text=param).grid(row=row, column=0, padx=10, pady=5, sticky="e")
+                ttk.Entry(self.scrollable_frame, textvariable=var).grid(row=row, column=1, padx=10, pady=5)
+                row += 1
 
         # Start button
-        ttk.Button(root, text="Start", command=self.start_main_execution).grid(row=row, column=0, columnspan=2, pady=10)
+        ttk.Button(self.scrollable_frame, text="Start", command=self.start_main_execution).grid(row=row, column=0, columnspan=2, pady=10)
 
     def start_main_execution(self):
         """Close parameter window and start main execution with parameters."""
         self.root.destroy()  # Close the parameter window
 
-        # Collect parameter values
-        params = {key: var.get() for key, var in self.params.items()}
-        
+        # Update parameters with user inputs
+        for key, var in self.var_entries.items():
+            keys = key.split('.')
+            d = self.params
+            for k in keys[:-1]:
+                d = d.setdefault(k, {})
+            d[keys[-1]] = var.get()
+
+        # Save updated parameters back to the YAML file
+        save_yaml('setup.yaml', self.params)
+
         # Start the main execution window with collected parameters
-        run(params)
+        run(self.params)
+
+# Funzione principale di esecuzione
+def run(params):
+    # Esegui la logica principale con i parametri aggiornati
+    print("Running with parameters:", params)
 
 # Launch the ParameterWindow as the initial GUI
-#if __name__ == "__main__":
-#    root = tk.Tk()
-#    ParameterWindow(root)
-#    root.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    ParameterWindow(root)
+    root.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Class to make the graphics of the simulation
 class GUI:
@@ -854,7 +931,6 @@ class Model():
     # Initialize the model
     def __init__(self, comm: MPI.Intracomm, params: Dict):
         self.comm = comm
-        self.context = ctx.SharedContext(comm)
         self.rank = comm.Get_rank()
         # Create shared contexts for the brain and the gut
         self.gut_context = ctx.SharedContext(comm)
@@ -1359,8 +1435,6 @@ if __name__ == "__main__":
     parser = parameters.create_args_parser()
     args = parser.parse_args()
     params = parameters.init_params(args.parameters_file, args.parameters)
-    print(type(params))
-    #run(params)
+    run(params)
     
-
 #mpiexec -n 1 python gut_brain_system.py setup.yaml
